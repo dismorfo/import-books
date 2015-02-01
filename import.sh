@@ -5,7 +5,7 @@ function die () {
   exit 1
 }
 
-function does_database_exist {
+function does_database_exist () {
   local output=$(mysql --user=${DATABASE_USER} --password=${DATABASE_PASSWORD} -s -N -e "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '${DATABASE_NAME_NEW}'" information_schema)
   if [[ -z "${output}" ]]; then return 1 ; else return 0 ; fi
 }
@@ -19,7 +19,7 @@ function database_does_not_exist () {
   if create_database ; then create_database_success ; else create_database_fail ; fi
 }
 
-function create_database {
+function create_database () {
   mysql --user=${DATABASE_USER} --password=${DATABASE_PASSWORD} -s -N -e "CREATE DATABASE ${DATABASE_NAME_NEW};"
   if does_database_exist ; then return 0; else return 1; fi  
 }
