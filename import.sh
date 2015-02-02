@@ -20,8 +20,7 @@ function database_does_not_exist () {
 }
 
 function create_database () {
-  mysql --user=${DATABASE_USER} --password=${DATABASE_PASSWORD} -s -N -e "CREATE DATABASE ${DATABASE_NAME_NEW};"
-  if does_database_exist ; then return 0; else return 1; fi  
+  return $? | mysql --user=${DATABASE_USER} --password=${DATABASE_PASSWORD} -s -N -e "CREATE DATABASE ${DATABASE_NAME_NEW};" 2> /dev/null
 }
 
 function is_drupal_online () {
@@ -240,6 +239,11 @@ read -s -p "Enter Password for mysql user $DATABASE_USER: " DATABASE_PASSWORD
 
 # New line
 echo 
+
+
+if create_database ; then echo "We good" ; else echo "We bad" ; fi
+
+exit 1
 
 # Check if the database exist; exit if exist, otherwise create it.
 # We want to fail this test and run `database_does_not_exist`
