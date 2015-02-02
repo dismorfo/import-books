@@ -201,7 +201,7 @@ done
 [ $APACHE_SOLR_URL ] || die "No Apache Solr URI available."
 
 # Test if ROOT_DIR directory looks like a Drupal 7 installation folder.
-[ ! `grep -q 'DRUPAL_ROOT' $ROOT_DIR/index.php` ] || die "$ROOT_DIR does not look like a Drupal installation folder."
+[ ! `grep -q 'DRUPAL_ROOT' $ROOT_DIR/index.php` ] || die "${ROOT_DIR} does not look like a Drupal installation folder."
 
 # Make sure the current site is online; if online continue
 if is_drupal_online ; then echo "Site online."; else die "Site offline."; fi
@@ -239,11 +239,6 @@ read -s -p "Enter Password for mysql user $DATABASE_USER: " DATABASE_PASSWORD
 
 # New line
 echo 
-
-
-if create_database ; then echo "We good" ; else echo "We bad" ; fi
-
-exit 1
 
 # Check if the database exist; exit if exist, otherwise create it.
 # We want to fail this test and run `database_does_not_exist`
