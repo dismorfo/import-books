@@ -79,9 +79,8 @@ function run_site_apache_solr_environment_tasks ( ) {
 
 function import_fail () {
   echo Import fail
-  rm ${SITE_SETTINGS}
-  cp ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php ${SITE_SETTINGS}
-  mv ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.fail.settings.php
+  mv ${SITE_SETTINGS} ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.fail.settings.php
+  mv ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php ${SITE_SETTINGS}
   if is_drupal_online ; then after_import_done_with_fail ; else after_import_done_with_error; fi  
 }
 
