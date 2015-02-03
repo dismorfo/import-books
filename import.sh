@@ -10,15 +10,6 @@ function does_database_exist () {
   if [[ -z "${output}" ]]; then return 1 ; else return 0 ; fi
 }
 
-function database_does_exist () {
-  die "Database already exist. Exit to prevent any potential damage."
-}
-
-function database_does_not_exist () {
-  # Database does not exist; try to create it
-  if create_database ; then create_database_success ; else create_database_fail ; fi
-}
-
 function create_database () {
   return $? | mysql --user=${DATABASE_USER} --password=${DATABASE_PASSWORD} -s -N -e "CREATE DATABASE ${DATABASE_NAME_NEW};" 2> /dev/null
 }
@@ -241,11 +232,8 @@ echo
 # make a copy of the settings file
 cp ${SITE_SETTINGS} ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php
 
-# Check if the database exist; exit if exist, otherwise create it.
-# We want to fail this test and run `database_does_not_exist`
-# - This check might be useless because we use UNIX timestamp
-# - we might just want to run `create_database` with a check
-if does_database_exist ; then database_does_exist ; else database_does_not_exist ; fi
+# Try to create database
+if create_database ; then create_database_success ; else create_database_fail ; fi
 
 # We have a database and admin user can connect. Assign appropriate privileges
 # to the site database user
