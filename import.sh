@@ -79,9 +79,9 @@ function run_site_apache_solr_environment_tasks ( ) {
 
 function import_fail () {
   echo Import fail
-  # remove reference to "corrupted" database
-  rm ${SITE_FOLDER}/db.current.txt
-  printf ${SITE_CURRENT_DATABASE_NAME} > ${SITE_FOLDER}/db.current.txt
+  rm ${SITE_SETTINGS}
+  cp ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php ${SITE_SETTINGS}
+  mv ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.fail.settings.php
   if is_drupal_online ; then after_import_done_with_fail ; else after_import_done_with_error; fi  
 }
 
@@ -105,12 +105,11 @@ function grant_database_user_appropriate_privileges_fail () {
 function import_success () {
   DATABASE_STRING_MATHCHED=$(grep "'database' => '${SITE_CURRENT_DATABASE_NAME}'," ${SITE_SETTINGS} >&1)
   if ! test -z  "${DATABASE_STRING_MATHCHED}" ; then
-    # copy the file
-    cp ${SITE_SETTINGS} ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php
     # read from the new database
     perl -pi -e "s/$SITE_CURRENT_DATABASE_NAME/$DATABASE_NAME_NEW/g" ${SITE_SETTINGS}  
     echo "/** ${DATE}: ${WHOAMI} : Import bash script changed database string ${SITE_CURRENT_DATABASE_NAME} to ${DATABASE_NAME_NEW} */" >> ${SITE_SETTINGS}
-    echo "/** ${DATE}: ${WHOAMI} : ${COMMENT} */" >> ${SITE_SETTINGS}    
+    echo "/** ${DATE}: ${WHOAMI} : ${COMMENT} */" >> ${SITE_SETTINGS}
+    chmod 775 ${SITE_SETTINGS}  
   else
     import_fail
   fi
@@ -147,9 +146,9 @@ DATE=`date`
 
 WHOAMI=`whoami`
 
-ENVIRONMENT=local
+ENVIRONMENT="local"
 
-DATABASE_NAME_NEW=books_"$ENVIRONMENT"_"$NOW"
+DATABASE_NAME_NEW="books_${ENVIRONMENT}_${NOW}"
 
 while getopts ":d:r:u:s:a:c:h" opt; do
   case $opt in
@@ -240,9 +239,13 @@ read -s -p "Enter Password for mysql user $DATABASE_USER: " DATABASE_PASSWORD
 # New line
 echo 
 
+# make a copy of the settings file
+cp ${SITE_SETTINGS} ${SITE_FOLDER}/${SITE_CURRENT_DATABASE_NAME}.settings.php
+
 # Check if the database exist; exit if exist, otherwise create it.
 # We want to fail this test and run `database_does_not_exist`
 # - This check might be useless because we use UNIX timestamp
+# - we might just want to run `create_database` with a check
 if does_database_exist ; then database_does_exist ; else database_does_not_exist ; fi
 
 # We have a database and admin user can connect. Assign appropriate privileges
